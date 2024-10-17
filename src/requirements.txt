@@ -1,0 +1,4 @@
+slack_bolt>=1.20.1
+aiohttp>=3.10.6
+flask>=3.0.3
+gunicorn>=23.0.0

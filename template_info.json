@@ -1,0 +1,19 @@
+{
+  "name": "Slack Bot App",
+  "description": "Ready-to-use Slack bot template for a rapid custom application development",
+  "templateMetadata": {
+    "tags": [
+      "Slack",
+      "Bot",
+      "GenerativeAI"
+    ],
+    "source": {
+      "repositoryUrl": "https://github.com/datarobot-oss/slack-bot-app",
+      "releaseTag": "10.2"
+    },
+    "previewImage": null
+  },
+  "templateType": "customApplicationTemplate",
+  "templateSubType": "customApplicationTemplate",
+  "executionEnvironmentName": "[DataRobot] Python 3.12"
+}

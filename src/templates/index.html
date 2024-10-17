@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slack Bot Template</title>
+    <style>
+        html,body {
+            font-family: sans-serif;
+            display: grid;
+            justify-content: center;
+        }
+        .container {
+            padding-top: 4rem;
+            max-width: 40rem;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="{% if success %}success{% else %}error{% endif %}">{{ message }}</h1>
+    {% if not success %}
+    <p>
+        It looks like the required environment variables are not set properly.
+        Set the tokens and rebuild the app, if you need help, find out more in our
+        <a href="https://github.com/datarobot-oss/slack-bot-app" target="_blank">README</a>
+    </p>
+    <h2>Missing required environment variable(s):</h2>
+    <ul>
+        {% if not has_bot_token %}
+        <li class="bold">SLACK_BOT_TOKEN</li>
+        {% elif not has_app_token %}
+        <li class="bold">SLACK_APP_TOKEN</li>
+        {% endif %}
+    </ul>
+    {% endif %}
+</div>
+</body>
+</html>
