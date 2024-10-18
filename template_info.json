@@ -1,6 +1,6 @@
 {
   "name": "Slack Bot App",
-  "description": "Ready-to-use Slack bot template for a rapid custom application development",
+  "description": "Seamlessly generate a Slack bot integration for your workspace’s chat experience with DataRobot's out of the box template example. In just a few clicks, get your Slackbot up and running with easy testing and simple guidance.",
   "templateMetadata": {
     "tags": [
       "Slack",
@@ -9,7 +9,7 @@
     ],
     "source": {
       "repositoryUrl": "https://github.com/datarobot-oss/slack-bot-app",
-      "releaseTag": "10.2"
+      "releaseTag": "10.2.2"
     },
     "previewImage": null
   },
