@@ -38,7 +38,8 @@
     <ul>
         {% if not has_bot_token %}
         <li class="bold">SLACK_BOT_TOKEN</li>
-        {% elif not has_app_token %}
+        {% endif %}
+        {% if not has_app_token %}
         <li class="bold">SLACK_APP_TOKEN</li>
         {% endif %}
     </ul>
