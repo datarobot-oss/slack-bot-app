@@ -77,6 +77,20 @@ Lastly, scroll to the top of the application source and click **Build applicatio
 To test the bot, navigate to your Slack chat and use @-mention: `@testbot Hello!`. Be sure to use your own bot username and to invite them to the public channel that you're testing within.
 If the @-mention worked, you can also verify the messages sample by saying `hello` or `bye`.
 
+### Disable auto-stopping
+
+Custom applications auto-stop after a while of inactivity. To turn this off for your Slack bot, please run the following
+command using your `<application_id>` and `<authorization_token>`:
+
+```shell
+curl --location --request PATCH 'https://app.datarobot.com/api/v2/customApplications/<application_id>/' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: <authorization_token>' \
+--data '{
+    "allowAutoStopping": false
+}'
+```
+
 ## Add more actions
 
 You can find examples for all available Slack listeners in the [Bolt for Python starter template](https://github.com/slack-samples/bolt-python-starter-template/tree/main). The approach is the exact same as in this repository, but they provide other, more advanced actions.
