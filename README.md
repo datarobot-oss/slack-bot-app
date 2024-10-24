@@ -65,8 +65,8 @@ export SLACK_APP_TOKEN="xapp-..."
 export SLACK_BOT_TOKEN="xoxb-..."
 ./start-app.sh
 ```
-\
-**For the Applications page:**\
+
+**For the Applications page:**
 
 Use `[DataRobot] Python 3.12` as the base environment and set the tokens in the runtime parameters section. To do that,
 click the edit icon, expand the value dropdown, and select **Add credentials**. Follow the instructions to add the tokens as `API Tokens` and return to the application source. Now select the newly created credentials to the corresponding variable.
