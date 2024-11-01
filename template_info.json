@@ -9,11 +9,11 @@
     ],
     "source": {
       "repositoryUrl": "https://github.com/datarobot-oss/slack-bot-app",
-      "releaseTag": "10.2.5"
+      "releaseTag": "10.2.6"
     },
     "previewImage": null
   },
   "templateType": "customApplicationTemplate",
   "templateSubType": "customApplicationTemplate",
-  "executionEnvironmentName": "[DataRobot] Python 3.12"
+  "executionEnvironmentName": "[DataRobot] Python 3.12 Applications Base"
 }
