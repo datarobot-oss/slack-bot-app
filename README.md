@@ -85,7 +85,7 @@ command using your `<application_id>` and `<authorization_token>`:
 ```shell
 curl --location --request PATCH 'https://app.datarobot.com/api/v2/customApplications/<application_id>/' \
 --header 'Content-Type: application/json' \
---header 'Authorization: <authorization_token>' \
+--header 'Authorization: Bearer <authorization_token>' \
 --data '{
     "allowAutoStopping": false
 }'
