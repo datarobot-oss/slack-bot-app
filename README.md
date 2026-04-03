@@ -75,18 +75,16 @@ Lastly, scroll to the top of the application source and click **Build applicatio
 
 ### Test the bot
 
-To test the bot, navigate to your Slack chat and invite the bot to a channel with `/invite @your-bot-name`, then try the following:
+The bot responds to @mentions only. Invite it to a channel with `/invite @your-bot-name`, then try the following:
 
+- `@your-bot-name ask what is the capital of France?` — the bot will answer via the DataRobot LLM Gateway
+- `@your-bot-name help` — the bot will list available commands
 - `@your-bot-name Hello!` — the bot will echo your message back
-- `hello` or `hi` — the bot will greet you
-- `bye` or `goodbye` — the bot will say farewell
-- `ask <question>` — the bot will answer using the DataRobot LLM Gateway
-- `help` — the bot will list available commands
 - Open the bot's **App Home** tab to see an overview of available commands
 
 ### DataRobot LLM Gateway
 
-The bot includes an `ask <question>` command powered by the [DataRobot LLM Gateway](https://docs.datarobot.com/en/docs/gen-ai/genai-code/dr-llm-gateway.html). It uses the application's own `DATAROBOT_API_TOKEN` (injected automatically by the platform) so no additional configuration is required to get started.
+The bot includes an `@mention ask <question>` command powered by the [DataRobot LLM Gateway](https://docs.datarobot.com/en/docs/gen-ai/genai-code/dr-llm-gateway.html). It uses the application's own `DATAROBOT_API_TOKEN` (injected automatically by the platform) so no additional configuration is required to get started.
 
 To use a different model, set the `DATAROBOT_LLM_MODEL` environment variable to any model available in your DataRobot instance (e.g. `datarobot/azure/gpt-4o`). The default is `datarobot/azure/gpt-4o-mini`.
 

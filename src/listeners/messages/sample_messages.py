@@ -17,6 +17,11 @@ def goodbye_message_callback(context: BoltContext, say: Say, logger: Logger) -> 
     say(f"{farewell}, see you next time!")
 
 
+def potato_callback(say: Say) -> None:
+    """Example message handler — replace this with your own logic."""
+    say("Did someone say potato? :potato:")
+
+
 def help_message_callback(say: Say) -> None:
     """Respond to help requests with a list of available commands."""
     say(

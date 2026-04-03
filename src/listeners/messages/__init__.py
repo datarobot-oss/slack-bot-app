@@ -2,14 +2,18 @@ import re
 
 from slack_bolt import App
 
-from .sample_llm import ask_callback
-from .sample_messages import goodbye_message_callback, help_message_callback, welcome_message_callback
+from .sample_messages import potato_callback
 
-matcher_map = {
-    r"(hi|hey|hello)": welcome_message_callback,
-    r"(goodbye|bye|farewell)": goodbye_message_callback,
-    r"help": help_message_callback,
-    r"ask\s+(.+)": ask_callback,
+# Message handlers trigger on plain channel/DM messages without an @mention.
+# They require additional OAuth scopes (channels:history, im:history, im:read, im:write)
+# and the corresponding Slack event subscriptions (message.channels, message.im).
+# If your app has those scopes, uncomment the entries below or add your own —
+# see sample_messages.py and sample_llm.py for ready-to-use examples.
+matcher_map: dict = {
+    # r"(hi|hey|hello)": welcome_message_callback,
+    # r"(goodbye|bye|farewell)": goodbye_message_callback,
+    # r"help": help_message_callback,
+    r"potato": potato_callback,
 }
 
 

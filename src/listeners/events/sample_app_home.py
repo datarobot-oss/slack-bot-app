@@ -21,12 +21,10 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger) -> 
                         "text": {
                             "type": "mrkdwn",
                             "text": (
-                                "Here's what this bot can do:\n\n"
-                                "• *@mention the bot* — it will echo your message\n"
-                                "• Say *hi*, *hey*, or *hello* — it will greet you\n"
-                                "• Say *goodbye*, *bye*, or *farewell* — it will say farewell\n"
-                                "• Say *ask <question>* — it will answer via the DataRobot LLM Gateway\n"
-                                "• Say *help* — it will list these commands"
+                                "Interact with this bot by @mentioning it:\n\n"
+                                "• *@mention ask <question>* — answer via the DataRobot LLM Gateway\n"
+                                "• *@mention help* — list available commands\n"
+                                "• *@mention <anything else>* — echo it back"
                             ),
                         },
                     },
