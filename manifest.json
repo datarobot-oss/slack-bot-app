@@ -1,6 +1,8 @@
 {
   "display_information": {
-    "name": "Slack Bot Template"
+    "name": "Slack Bot Template",
+    "description": "A Slack bot template for DataRobot Custom Applications.",
+    "background_color": "#434a59"
   },
   "features": {
     "app_home": {

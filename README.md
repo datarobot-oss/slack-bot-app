@@ -14,7 +14,7 @@ Follow the configuration outlined in the steps below.
 Create a new Slack application via the [Slack UI](https://api.slack.com/apps?new_app=1). Select either
 **From scratch** or **From a manifest**. DataRobot recommends selecting **From a manifest** if you have never set up an application before.
 
-The repository includes a basic [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) that you can copy and paste into the app creation form. To set the app name, modify `display_information > name`. and for the bot name modify either `features > bot_user > display_name` or go to the `Basic Information` settings page after the application has been created. Other information, such as the app icon, color, or description can also be found in this page.
+The repository includes a basic [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) that you can copy and paste into the app creation form. To set the app name, modify `display_information > name` and for the bot name modify either `features > bot_user > display_name` or go to the `Basic Information` settings page after the application has been created. Other information, such as the app icon, color, or description can also be found in this page.
 
 Next select the workspace to which you want to install the app. Next, paste the manifest into the text field. Make sure to select the JSON tab if you copied
 the [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) from this repository.
@@ -47,13 +47,13 @@ review the permissions. Once the app is installed, note down the displayed token
   - Enter the token name and add the scope for `connections:write`.
   - Click generate and copy the token.
 - Generate the `SLACK_BOT_TOKEN`:
-  - On `OAuth & Permissions` page find `App-Level Tokens` section.
+  - On `OAuth & Permissions` page find `OAuth Tokens` section.
   - Install the app to your workspace.
   - Copy the OAuth token.
 
 ### Run the app
 
-You can run the Q&amp;A app in DataRobot using a custom application or by running the app locally. Custom applications can be created via the Registry's **Applications** page or by using [DRApps](https://github.com/datarobot/dr-apps/blob/main/README.md).
+You can run the bot in DataRobot using a custom application or by running the app locally. Custom applications can be created via the Registry's **Applications** page or by using [DRApps](https://github.com/datarobot/dr-apps/blob/main/README.md).
 
 Define the variables for the app to communicate with Slack. If you run the app locally or via another environment, then you need to set the environment variables in the terminal that you use. When this app is run via the **Applications** page, the variables can be set with the preconfigured runtime parameters in the application source.
 
@@ -61,6 +61,7 @@ Define the variables for the app to communicate with Slack. If you run the app l
 
 ```shell
 cd src
+uv sync
 export SLACK_APP_TOKEN="xapp-..."
 export SLACK_BOT_TOKEN="xoxb-..."
 ./start-app.sh
@@ -74,8 +75,22 @@ Lastly, scroll to the top of the application source and click **Build applicatio
 
 ### Test the bot
 
-To test the bot, navigate to your Slack chat and use @-mention: `@testbot Hello!`. Be sure to use your own bot username and to invite them to the public channel that you're testing within.
-If the @-mention worked, you can also verify the messages sample by saying `hello` or `bye`.
+To test the bot, navigate to your Slack chat and invite the bot to a channel with `/invite @your-bot-name`, then try the following:
+
+- `@your-bot-name Hello!` — the bot will echo your message back
+- `hello` or `hi` — the bot will greet you
+- `bye` or `goodbye` — the bot will say farewell
+- `ask <question>` — the bot will answer using the DataRobot LLM Gateway
+- `help` — the bot will list available commands
+- Open the bot's **App Home** tab to see an overview of available commands
+
+### DataRobot LLM Gateway
+
+The bot includes an `ask <question>` command powered by the [DataRobot LLM Gateway](https://docs.datarobot.com/en/docs/gen-ai/genai-code/dr-llm-gateway.html). It uses the application's own `DATAROBOT_API_TOKEN` (injected automatically by the platform) so no additional configuration is required to get started.
+
+To use a different model, set the `DATAROBOT_LLM_MODEL` environment variable to any model available in your DataRobot instance (e.g. `datarobot/azure/gpt-4o`). The default is `datarobot/azure/gpt-4o-mini`.
+
+Optionally, set `DATAROBOT_USER_API_TOKEN` via runtime parameters to use your personal DataRobot API token instead of the application-scoped one.
 
 ### Disable auto-stopping
 
@@ -101,13 +116,14 @@ This workflow only focuses on how to add more message and event listeners. Note 
 To configure events, navigate to `src/listeners/events` and create a new file that contains the function you would like to run as callback to an event. You can use the sample app mention as an example:
 
 ```python
-def app_mention_callback(event, logger, say):
-  # Get the message text and user who mentioned the bot
-  user_id = event["user"]
-  message_text = event["text"]
+from logging import Logger
+from slack_bolt import Say
 
-  # Respond to the user in the channel
-  say(f"Hi there, <@{user_id}>! You mentioned me with the text: {message_text}")
+def app_mention_callback(event: dict, logger: Logger, say: Say) -> None:
+    user_id = event["user"]
+    message_text = event["text"]
+    logger.info("App mentioned by user %s: %s", user_id, message_text)
+    say(f"Hi there, <@{user_id}>! You mentioned me with the text: {message_text}")
 ```
 
 Once you have defined a callback function, it needs to be registered to the right event.
@@ -115,22 +131,23 @@ Navigate to the `__init__.py` in `events` and add the event name with the callba
 
 ```python
 matcher_map = {
-  "app_mention": app_mention_callback,
-  # Add more events and callbacks here
+    "app_mention": app_mention_callback,
+    # Add more events and callbacks here
 }
 ```
 
 ### Messages
 
-Messages are registered almost the same way as Events. Navigate to `src/listeners/messages` and create a new file that contains the function you would like to run as callback. Here is another sample callback as example:
+Messages are registered almost the same way as events. Navigate to `src/listeners/messages` and create a new file that contains the function you would like to run as callback. Here is a sample callback:
 
 ```python
-def goodbye_message_callback(context: BoltContext, say: Say, logger: Logger):
-  try:
+from logging import Logger
+from slack_bolt import BoltContext, Say
+
+def goodbye_message_callback(context: BoltContext, say: Say, logger: Logger) -> None:
     farewell = context["matches"][0]
+    logger.info("Responding to farewell: %s", farewell)
     say(f"{farewell}, see you next time!")
-  except Exception as e:
-    logger.error(e)
 ```
 
 Once you have defined a callback function, it needs to be registered to the right text matcher.
@@ -138,8 +155,9 @@ Navigate to the `__init__.py` in `messages` and add the string that should trigg
 
 ```python
 matcher_map = {
-  r'(hi|hey|hello)': welcome_message_callback,
-  r'(goodbye|bye|farewell)': goodbye_message_callback,
+    r"(hi|hey|hello)": welcome_message_callback,
+    r"(goodbye|bye|farewell)": goodbye_message_callback,
+    r"help": help_message_callback,
 }
 ```
 
@@ -147,5 +165,3 @@ Be aware that unrelated conversations could trigger the bot if the matching phra
 bot template will ignore upper and lower case to avoid issues between `Hi` and `hi`. If you need the matcher to react
 differently between upper and lower case, edit the `register` function by removing `re.IGNORECASE` from
 `app.message(re.compile(pattern, re.IGNORECASE))(callback)`
-
-
