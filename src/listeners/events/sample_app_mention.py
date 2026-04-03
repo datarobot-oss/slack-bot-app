@@ -17,9 +17,9 @@ def app_mention_callback(event: dict, logger: Logger, say: Say) -> None:
       <anything else> — echo the message back
     """
     user_id = event["user"]
-    text = _MENTION_RE.sub("", event["text"]).strip()
+    text = _MENTION_RE.sub("", event["text"], count=1).strip()
 
-    ask_match = re.match(r"ask\s+(.+)", text, re.IGNORECASE)
+    ask_match = re.match(r"ask\s+(.+)", text, re.IGNORECASE | re.DOTALL)
     if ask_match:
         question = ask_match.group(1).strip()
         logger.info("LLM Gateway request from %s: %s", user_id, question)
