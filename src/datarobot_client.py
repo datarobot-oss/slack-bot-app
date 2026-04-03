@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from openai import OpenAI
 
@@ -10,7 +11,10 @@ _DATAROBOT_API_TOKEN = os.environ.get("DATAROBOT_USER_API_TOKEN") or os.environ.
 
 # Model to use for LLM Gateway requests.
 # Use the model field from GET /api/v2/genai/llmgw/catalog/ — e.g. "azure-openai-gpt-4-o-mini".
-DATAROBOT_LLM_MODEL = os.environ.get("DATAROBOT_LLM_MODEL", "vertex_ai/claude-sonnet-4-6")
+DATAROBOT_LLM_MODEL = os.environ.get("DATAROBOT_LLM_MODEL", "azure-openai-gpt-4-o-mini")
+
+# System prompt loaded from skills.md — controls tone, formatting, and behaviour.
+SYSTEM_PROMPT = (Path(__file__).parent / "skills.md").read_text()
 
 
 def get_llm_client() -> OpenAI:

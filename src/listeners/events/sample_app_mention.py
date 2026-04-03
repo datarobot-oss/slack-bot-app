@@ -3,7 +3,7 @@ from logging import Logger
 
 from slack_bolt import Say
 
-from datarobot_client import DATAROBOT_LLM_MODEL, get_llm_client
+from datarobot_client import DATAROBOT_LLM_MODEL, SYSTEM_PROMPT, get_llm_client
 
 _MENTION_RE = re.compile(r"<@[A-Z0-9]+>\s*", re.IGNORECASE)
 
@@ -26,7 +26,10 @@ def app_mention_callback(event: dict, logger: Logger, say: Say) -> None:
         try:
             response = get_llm_client().chat.completions.create(
                 model=DATAROBOT_LLM_MODEL,
-                messages=[{"role": "user", "content": question}],
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": question},
+                ],
             )
             say(response.choices[0].message.content)
         except Exception:
