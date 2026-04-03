@@ -1,5 +1,8 @@
+---
 runtimeParameterDefinitions:
 - fieldName: SLACK_APP_TOKEN
   type: credential
 - fieldName: SLACK_BOT_TOKEN
+  type: credential
+- fieldName: DATAROBOT_USER_API_TOKEN
   type: credential

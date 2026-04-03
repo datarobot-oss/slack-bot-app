@@ -3,7 +3,7 @@
 In this repository you will find a ready-to-use Slack bot template for a DataRobot custom application. After creating the Slack application, you can immediately start configuring the bot messages and events.
 
 The Slack bot code is based on the [Bolt for Python starter template](https://github.com/slack-samples/bolt-python-starter-template/tree/main) and
-comes with a small Flask app and start-app script to create a working DataRobot custom application.
+comes with a small FastAPI app and start-app script to create a working DataRobot custom application.
 
 ## Setup
 

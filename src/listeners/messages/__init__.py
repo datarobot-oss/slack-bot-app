@@ -1,15 +1,24 @@
 import re
 
 from slack_bolt import App
-from .sample_messages import welcome_message_callback, goodbye_message_callback
+
+from .sample_llm import ask_callback
+from .sample_messages import goodbye_message_callback, help_message_callback, welcome_message_callback
 
 matcher_map = {
-    r'(hi|hey|hello)': welcome_message_callback,
-    r'(goodbye|bye|farewell)': goodbye_message_callback,
+    r"(hi|hey|hello)": welcome_message_callback,
+    r"(goodbye|bye|farewell)": goodbye_message_callback,
+    r"help": help_message_callback,
+    r"ask\s+(.+)": ask_callback,
 }
 
-# To receive messages from a channel or dm your app must be a member!
-def register(app: App):
-    # Register multiple message handlers, add additional phrases and callbacks in the matcher_map above
+
+def register(app: App) -> None:
+    """Register all message handlers with the given app.
+
+    To add a new handler, create a callback in this package and add a regex pattern
+    pointing to it in matcher_map above. Patterns are matched case-insensitively by default.
+    Note: overly broad patterns may trigger the bot on unrelated conversations.
+    """
     for pattern, callback in matcher_map.items():
         app.message(re.compile(pattern, re.IGNORECASE))(callback)
