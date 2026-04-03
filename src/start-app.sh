@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export DATAROBOT_LLM_MODEL="datarobot/bedrock/anthropic.claude-sonnet-4-6"
+export DATAROBOT_LLM_MODEL="vertex_ai/claude-sonnet-4-6"
 
 echo "Starting App"
 
