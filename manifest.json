@@ -1,7 +1,7 @@
 {
   "display_information": {
     "name": "Slack Bot Template",
-    "description": "A Slack bot template for DataRobot Custom Applications.",
+    "description": "Seamlessly generate a Slack bot integration for your workspace's chat experience with DataRobot's out of the box template example. In just a few clicks, get your Slackbot up and running with easy testing and simple guidance.",
     "background_color": "#434a59"
   },
   "features": {

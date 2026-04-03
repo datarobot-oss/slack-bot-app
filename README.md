@@ -1,9 +1,9 @@
 # Slack bot app template
 
-In this repository you will find a ready-to-use Slack bot template for a DataRobot custom application. After creating the Slack application, you can immediately start configuring the bot messages and events.
+In this repository you will find a ready-to-use Slack bot template for a DataRobot Custom Application. After creating the Slack application, you can immediately start configuring the bot messages and events.
 
 The Slack bot code is based on the [Bolt for Python starter template](https://github.com/slack-samples/bolt-python-starter-template/tree/main) and
-comes with a small FastAPI app and start-app script to create a working DataRobot custom application.
+comes with a small FastAPI app and start-app script to create a working DataRobot Custom Application.
 
 ## Setup
 
@@ -53,7 +53,7 @@ review the permissions. Once the app is installed, note down the displayed token
 
 ### Run the app
 
-You can run the bot in DataRobot using a custom application or by running the app locally. Custom applications can be created via the Registry's **Applications** page or by using [DRApps](https://github.com/datarobot/dr-apps/blob/main/README.md).
+You can run the bot inside DataRobot using a Custom Application or by running the app locally. Custom Applications can be created via the Registry's **Applications** page or by using [DRApps](https://github.com/datarobot/dr-apps/blob/main/README.md).
 
 Define the variables for the app to communicate with Slack. If you run the app locally or via another environment, then you need to set the environment variables in the terminal that you use. When this app is run via the **Applications** page, the variables can be set with the preconfigured runtime parameters in the application source.
 
