@@ -9,9 +9,8 @@ _DATAROBOT_ENDPOINT = os.environ.get("DATAROBOT_ENDPOINT", "https://app.datarobo
 _DATAROBOT_API_TOKEN = os.environ.get("DATAROBOT_USER_API_TOKEN") or os.environ.get("DATAROBOT_API_TOKEN")
 
 # Model to use for LLM Gateway requests.
-# Must be prefixed with "datarobot/" — e.g. "datarobot/azure/gpt-4o-mini".
-# List available models via GET /api/v2/genai/llmgw/catalog/
-DATAROBOT_LLM_MODEL = os.environ.get("DATAROBOT_LLM_MODEL", "datarobot/azure/gpt-4o-mini")
+# Use the model field from GET /api/v2/genai/llmgw/catalog/ — e.g. "azure-openai-gpt-4-o-mini".
+DATAROBOT_LLM_MODEL = os.environ.get("DATAROBOT_LLM_MODEL", "vertex_ai/claude-sonnet-4-6")
 
 
 def get_llm_client() -> OpenAI:

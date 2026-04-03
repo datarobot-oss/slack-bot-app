@@ -77,7 +77,7 @@ The bot responds to @mentions only. Invite it to a channel with `/invite @your-b
 
 The bot includes an `@mention ask <question>` command powered by the [DataRobot LLM Gateway](https://docs.datarobot.com/en/docs/gen-ai/genai-code/dr-llm-gateway.html). It uses the application's own `DATAROBOT_API_TOKEN` (injected automatically by the platform) so no additional configuration is required to get started.
 
-To use a different model, set the `DATAROBOT_LLM_MODEL` environment variable to any model available in your DataRobot instance (e.g. `datarobot/azure/gpt-4o`). The default is `datarobot/azure/gpt-4o-mini`.
+To use a different model, set the `DATAROBOT_LLM_MODEL` environment variable to any `model` value from `GET /api/v2/genai/llmgw/catalog/` (e.g. `azure-openai-gpt-4-o`). The default is `azure-openai-gpt-4-o-mini`.
 
 Optionally, set `DATAROBOT_USER_API_TOKEN` via runtime parameters to use your personal DataRobot API token instead of the application-scoped one.
 
