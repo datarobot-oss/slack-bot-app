@@ -11,45 +11,36 @@ Follow the configuration outlined in the steps below.
 
 ### Create a new Slack app
 
-Create a new Slack application via the [Slack UI](https://api.slack.com/apps?new_app=1). Select either
-**From scratch** or **From a manifest**. DataRobot recommends selecting **From a manifest** if you have never set up an application before.
+> **Important:** This template requires a modern Slack app with Socket Mode support. Slack apps created before 2021 (legacy apps) do not support Socket Mode and cannot be used with this template. Always create a new app.
 
-The repository includes a basic [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) that you can copy and paste into the app creation form. To set the app name, modify `display_information > name` and for the bot name modify either `features > bot_user > display_name` or go to the `Basic Information` settings page after the application has been created. Other information, such as the app icon, color, or description can also be found in this page.
+[Create a new Slack application](https://api.slack.com/apps?new_app=1) and select **From a manifest**. This is the recommended approach — the repository includes a [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) that configures all required scopes, events, and settings in one step.
 
-Next select the workspace to which you want to install the app. Next, paste the manifest into the text field. Make sure to select the JSON tab if you copied
-the [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) from this repository.
+1. Select **From a manifest** and choose your workspace.
+2. Select the **JSON** tab and paste the contents of [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json).
+3. Update the app name in `display_information > name` and the bot display name in `features > bot_user > display_name`.
+4. Review the permissions and confirm the app creation.
 
-The last step asks to review the permissions given to the bot. The manifest from this repository allows for @-mentions and messages, meaning it has access to the chat history of public channels it is a member of.
-
-#### Slack app configuration summary
-
-- [Create a new app](https://api.slack.com/apps?new_app=1) from a manifest.
-- Select the workspace for the app.
-- Select `JSON` tab and paste the [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) (modify the app name `display_information > name` and bot name `features > bot_user > display_name`).
-- Review the given permissions.
-- Confirm the app creation.
+The manifest pre-configures all OAuth scopes and event subscriptions the bot needs. Adding scopes later requires reinstalling the app to your workspace — if your organisation requires IT approval for Slack app installs, plan your scope requirements upfront.
 
 ### Generate tokens
 
-The instructions below outline how to generate the necessary tokens for the Slackbot app.
+The bot requires two tokens. Generate them in the order below — **Socket Mode must be enabled before generating the App Token**, otherwise the required scope will not appear.
 
-**SLACK_APP_TOKEN**: On the `Basic Information` page, scroll down to find the `App-Level Tokens` section. Click the button to generate a new token. Enter a name for the app token and add scope for `connections:write`, this will allow the app events over
-WebSockets. Click generate and note down the token to be used as `SLACK_APP_TOKEN`.
+**Step 1 — Enable Socket Mode**
 
-**SLACK_BOT_TOKEN**: The bot token can be found on the `OAuth & Permissions` page in `OAuth Tokens` section. You first need to install the app to your selected Slack workspace. In the OAuth Tokens section click install to `{your workspace}` and
-review the permissions. Once the app is installed, note down the displayed token as `SLACK_BOT_TOKEN`.
+Go to **Settings → Socket Mode** and toggle it on. This makes the bot connect to Slack over a persistent WebSocket instead of requiring a public URL.
 
-#### Short summary:
+**Step 2 — Generate `SLACK_APP_TOKEN`**
 
-- Generate the `SLACK_APP_TOKEN`:
-  - On `Basic Information` page, find `App-Level Tokens`.
-  - Click the button to generate a new token.
-  - Enter the token name and add the scope for `connections:write`.
-  - Click generate and copy the token.
-- Generate the `SLACK_BOT_TOKEN`:
-  - On `OAuth & Permissions` page find `OAuth Tokens` section.
-  - Install the app to your workspace.
-  - Copy the OAuth token.
+Go to **Basic Information → App-Level Tokens** and click **Generate Token and Scopes**. Add the `connections:write` scope — this is the only scope that allows the bot to open a WebSocket connection. Copy the generated token (it starts with `xapp-`).
+
+> If you only see `authorizations:read` and `app_configurations:write` as scope options, Socket Mode is not enabled yet. Go back to Step 1.
+
+**Step 3 — Generate `SLACK_BOT_TOKEN`**
+
+Go to **OAuth & Permissions** and click **Install to workspace**. Review the permissions and confirm. Once installed, copy the **Bot User OAuth Token** from the same page (it starts with `xoxb-`).
+
+> Adding or changing OAuth scopes after installation requires a reinstall. Go to **OAuth & Permissions → Reinstall to workspace** after any scope changes.
 
 ### Run the app
 
@@ -103,6 +94,32 @@ curl --location --request PATCH 'https://app.datarobot.com/api/v2/customApplicat
     "allowAutoStopping": false
 }'
 ```
+
+## Troubleshooting
+
+**The bot connects but does not respond to @mentions**
+
+Make sure the `app_mention` event is subscribed under **Event Subscriptions → Subscribe to bot events**. Socket Mode still requires explicit event subscriptions — it only changes how events are delivered (WebSocket instead of HTTP), not which events are sent. Invite the bot to the channel with `/invite @your-bot-name` if you have not already done so.
+
+**The bot does not respond to plain messages (`hi`, `potato`, etc.)**
+
+Plain message handlers are disabled by default. Enable them by adding entries to `matcher_map` in [src/listeners/messages/\_\_init\_\_.py](src/listeners/messages/__init__.py). These handlers also require additional OAuth scopes (`channels:history`, `im:history`, `im:read`, `im:write`) and event subscriptions (`message.channels`, `message.im`) — all of which are already included in the manifest. If your organisation requires IT approval for these scopes, the @mention-only mode works without them.
+
+**`connections:write` scope is not available when generating the App Token**
+
+Socket Mode is not enabled. Go to **Settings → Socket Mode**, enable it, and then return to **Basic Information → App-Level Tokens** to generate the token.
+
+**`missing_scope: chat:write` error in the logs**
+
+The bot token was generated before `chat:write` was added to the app's scopes, or the app was created without the manifest. Go to **OAuth & Permissions → Reinstall to workspace** to apply the current scope configuration.
+
+**`missing_scope: connections:write` / `provided: app_configurations:write` error**
+
+The App Token was generated with the wrong scope. Delete it from **Basic Information → App-Level Tokens** and generate a new one with `connections:write`.
+
+**Event subscriptions page shows a "Request URL" field and Save is disabled**
+
+This happens when Socket Mode is not enabled — the page falls back to HTTP mode and requires a verified URL before saving. Enable Socket Mode first (**Settings → Socket Mode**), then return to configure event subscriptions.
 
 ## Add more actions
 
