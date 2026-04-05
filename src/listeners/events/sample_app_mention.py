@@ -36,7 +36,8 @@ def _build_transcript(client: WebClient, channel: str, limit: int) -> str:
             try:
                 info = client.users_info(user=user_id)
                 user = info["user"]
-                user_cache[user_id] = user.get("display_name") or user.get("real_name") or user_id
+                profile = user.get("profile", {})
+                user_cache[user_id] = profile.get("display_name") or profile.get("real_name") or user_id
             except Exception:
                 user_cache[user_id] = user_id
         return user_cache[user_id]
