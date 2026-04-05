@@ -23,6 +23,7 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger) -> 
                             "text": (
                                 "Interact with this bot by @mentioning it:\n\n"
                                 "• *@mention ask <question>* — answer via the DataRobot LLM Gateway\n"
+                                "• *@mention summarize* or *@mention summarize last N* — summarize recent channel messages\n"
                                 "• *@mention help* — list available commands\n"
                                 "• *@mention <anything else>* — echo it back"
                             ),
