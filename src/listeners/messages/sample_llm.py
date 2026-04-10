@@ -2,7 +2,8 @@ from logging import Logger
 
 from slack_bolt import BoltContext, Say
 
-from datarobot_client import DATAROBOT_LLM_MODEL, get_llm_client
+from config import Config
+from datarobot_client import ask_llm
 
 
 def ask_callback(context: BoltContext, say: Say, logger: Logger) -> None:
@@ -15,13 +16,8 @@ def ask_callback(context: BoltContext, say: Say, logger: Logger) -> None:
     logger.info("LLM Gateway request: %s", question)
 
     try:
-        client = get_llm_client()
-        response = client.chat.completions.create(
-            model=DATAROBOT_LLM_MODEL,
-            messages=[{"role": "user", "content": question}],
-        )
-        answer = response.choices[0].message.content
-        say(answer)
+        model = Config().datarobot_llm_model
+        say(ask_llm(model, question))
     except Exception:
         logger.exception("LLM Gateway request failed")
         say("Sorry, I couldn't get a response. Please check the bot logs or try again later.")

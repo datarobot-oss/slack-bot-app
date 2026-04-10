@@ -13,10 +13,10 @@ Follow the configuration outlined in the steps below.
 
 > **Important:** This template requires a modern Slack app with Socket Mode support. Slack apps created before 2021 (legacy apps) do not support Socket Mode and cannot be used with this template. Always create a new app.
 
-[Create a new Slack application](https://api.slack.com/apps?new_app=1) and select **From a manifest**. This is the recommended approach — the repository includes a [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json) that configures all required scopes, events, and settings in one step.
+[Create a new Slack application](https://api.slack.com/apps?new_app=1) and select **From a manifest**. This is the recommended approach — the repository includes a [slack_manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/slack_manifest.json) that configures all required scopes, events, and settings in one step.
 
 1. Select **From a manifest** and choose your workspace.
-2. Select the **JSON** tab and paste the contents of [manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/manifest.json).
+2. Select the **JSON** tab and paste the contents of [slack_manifest.json](https://github.com/datarobot-oss/slack-bot-app/blob/main/slack_manifest.json).
 3. Update the app name in `display_information > name` and the bot display name in `features > bot_user > display_name`.
 4. Review the permissions and confirm the app creation.
 
@@ -75,11 +75,17 @@ The bot responds to @mentions only. Invite it to a channel with `/invite @your-b
 
 ### DataRobot LLM Gateway
 
-The bot includes an `@mention ask <question>` command powered by the [DataRobot LLM Gateway](https://docs.datarobot.com/en/docs/gen-ai/genai-code/dr-llm-gateway.html). It uses the application's own `DATAROBOT_API_TOKEN` (injected automatically by the platform) so no additional configuration is required to get started.
+The bot includes an `@mention ask <question>` command powered by the [DataRobot LLM Gateway](https://docs.datarobot.com/en/docs/gen-ai/genai-code/dr-llm-gateway.html). It uses the `datarobot` SDK and [LiteLLM](https://docs.litellm.ai/docs/providers/datarobot) for LLM calls. The `DATAROBOT_API_TOKEN` and `DATAROBOT_ENDPOINT` are injected automatically by the platform so no additional configuration is required to get started.
 
-To use a different model, set the `DATAROBOT_LLM_MODEL` environment variable to any `model` value from `GET /api/v2/genai/llmgw/catalog/` (e.g. `azure-openai-gpt-4-o`). The default is `azure-openai-gpt-4-o-mini`.
+To use a different model, set the `DATAROBOT_LLM_MODEL` environment variable to the full LiteLLM model string (e.g. `datarobot/azure/gpt-4o`). The default is `azure/gpt-5-1-2025-11-13`.
 
-Optionally, set `DATAROBOT_USER_API_TOKEN` via runtime parameters to use your personal DataRobot API token instead of the application-scoped one.
+To discover available models programmatically:
+
+```python
+import datarobot
+catalog = datarobot.genai.LLMGatewayCatalog()
+print(catalog.list_as_dict())
+```
 
 ### Disable auto-stopping
 
@@ -128,55 +134,36 @@ This workflow only focuses on how to add more message and event listeners. Note 
 
 ### Events
 
-To configure events, navigate to `src/listeners/events` and create a new file that contains the function you would like to run as callback to an event. You can use the sample app mention as an example:
+To configure events, navigate to `src/listeners/events/__init__.py` and register your handler with the `@app.event` decorator inside the `register` function:
 
 ```python
-from logging import Logger
-from slack_bolt import Say
-
-def app_mention_callback(event: dict, logger: Logger, say: Say) -> None:
-    user_id = event["user"]
-    message_text = event["text"]
-    logger.info("App mentioned by user %s: %s", user_id, message_text)
-    say(f"Hi there, <@{user_id}>! You mentioned me with the text: {message_text}")
+@app.event("reaction_added")
+def reaction_added(event: dict, say: Say, logger: Logger) -> None:
+    logger.info("Reaction added: %s", event)
 ```
 
-Once you have defined a callback function, it needs to be registered to the right event.
-Navigate to the `__init__.py` in `events` and add the event name with the callback to the `matcher_map`:
+For more complex handlers, define the callback in a separate module and register it:
 
 ```python
-matcher_map = {
-    "app_mention": app_mention_callback,
-    # Add more events and callbacks here
-}
+from .my_handler import my_callback
+
+app.event("app_mention")(my_callback)
 ```
 
 ### Messages
 
-Messages are registered almost the same way as events. Navigate to `src/listeners/messages` and create a new file that contains the function you would like to run as callback. Here is a sample callback:
+Messages are registered in `src/listeners/messages/__init__.py` using the `@app.message` decorator inside the `register` function. Pass a plain string for exact matches or a compiled regex for patterns:
 
 ```python
-from logging import Logger
-from slack_bolt import BoltContext, Say
+@app.message("Hello!")
+def hi(message: dict[str, Any], say: Say) -> None:
+    say(f"Hi there <@{message['user']}>! :wave:")
 
-def goodbye_message_callback(context: BoltContext, say: Say, logger: Logger) -> None:
+@app.message(re.compile(r"(goodbye|bye|farewell)", re.IGNORECASE))
+def goodbye(context: BoltContext, say: Say, logger: Logger) -> None:
     farewell = context["matches"][0]
     logger.info("Responding to farewell: %s", farewell)
     say(f"{farewell}, see you next time!")
 ```
 
-Once you have defined a callback function, it needs to be registered to the right text matcher.
-Navigate to the `__init__.py` in `messages` and add the string that should trigger the callback to the matcher_map:
-
-```python
-matcher_map = {
-    r"(hi|hey|hello)": welcome_message_callback,
-    r"(goodbye|bye|farewell)": goodbye_message_callback,
-    r"help": help_message_callback,
-}
-```
-
-Be aware that unrelated conversations could trigger the bot if the matching phrase is too common! As a default this
-bot template will ignore upper and lower case to avoid issues between `Hi` and `hi`. If you need the matcher to react
-differently between upper and lower case, edit the `register` function by removing `re.IGNORECASE` from
-`app.message(re.compile(pattern, re.IGNORECASE))(callback)`
+Be aware that unrelated conversations could trigger the bot if the matching phrase is too common!

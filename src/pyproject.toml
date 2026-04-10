@@ -7,7 +7,11 @@ dependencies = [
     "aiohttp>=3.10.6",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
-    "openai>=1.55.0",
+    "litellm>=1.67.0",
+    "datarobot>=3.6.0",
+    "pydantic-settings>=2.0.0",
+    "datarobot-asgi-middleware>=0.2.0",
+    "jinja2>=3.1.0",
 ]
 
 [dependency-groups]
@@ -34,7 +38,7 @@ select = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["listeners", "web_app", "datarobot_client"]
+known-first-party = ["listeners", "web_app", "datarobot_client", "config"]
 
 [tool.ruff.format]
 quote-style = "double"

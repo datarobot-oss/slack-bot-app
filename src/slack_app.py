@@ -1,5 +1,4 @@
 import logging
-import os
 import signal
 import sys
 import threading
@@ -8,23 +7,21 @@ import uvicorn
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
+from config import Config
 from listeners import register_listeners
 from web_app import app as web_app
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
-SLACK_APP_TOKEN = os.environ.get("SLACK_APP_TOKEN")
-
 app_handler: SocketModeHandler | None = None
 
 
-def create_app_handler() -> SocketModeHandler:
+def create_app_handler(config: Config) -> SocketModeHandler:
     """Initialise the Slack Bolt app and return a ready-to-start SocketModeHandler."""
-    slack_app = App(token=SLACK_BOT_TOKEN)
+    slack_app = App(token=config.slack_bot_token)
     register_listeners(slack_app)
-    return SocketModeHandler(slack_app, SLACK_APP_TOKEN)
+    return SocketModeHandler(slack_app, config.slack_app_token)
 
 
 def handle_shutdown(_signum, _frame) -> None:
@@ -43,13 +40,15 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, handle_shutdown)
     signal.signal(signal.SIGINT, handle_shutdown)
 
-    if not SLACK_BOT_TOKEN:
-        logger.error("Missing required environment variable: SLACK_BOT_TOKEN")
-    if not SLACK_APP_TOKEN:
-        logger.error("Missing required environment variable: SLACK_APP_TOKEN")
+    config = Config()
 
-    if SLACK_BOT_TOKEN and SLACK_APP_TOKEN:
-        app_handler = create_app_handler()
+    if not config.slack_bot_token:
+        logger.error("Missing required configuration: SLACK_BOT_TOKEN")
+    if not config.slack_app_token:
+        logger.error("Missing required configuration: SLACK_APP_TOKEN")
+
+    if config.slack_bot_token and config.slack_app_token:
+        app_handler = create_app_handler(config)
         app_handler.start()
     else:
         # Keep the process alive so the FastAPI health endpoint remains reachable

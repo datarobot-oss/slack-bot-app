@@ -4,7 +4,8 @@ from logging import Logger
 from slack_bolt import Say
 from slack_sdk import WebClient
 
-from datarobot_client import DATAROBOT_LLM_MODEL, SYSTEM_PROMPT, get_llm_client
+from config import Config
+from datarobot_client import ask_llm
 
 _MENTION_RE = re.compile(r"<@[A-Z0-9]+>\s*", re.IGNORECASE)
 _SUMMARIZE_RE = re.compile(r"summarize(?:\s+(?:last\s+)?(\d+))?", re.IGNORECASE)
@@ -56,14 +57,8 @@ def _ask_llm(question: str, logger: Logger, say: Say) -> None:
     """Send a question to the LLM Gateway and reply with the answer."""
     logger.info("LLM Gateway request: %s", question)
     try:
-        response = get_llm_client().chat.completions.create(
-            model=DATAROBOT_LLM_MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": question},
-            ],
-        )
-        say(response.choices[0].message.content)
+        model = Config().datarobot_llm_model
+        say(ask_llm(model, question))
     except Exception:
         logger.exception("LLM Gateway request failed")
         say("Sorry, I couldn't get a response. Please check the bot logs or try again later.")

@@ -1,142 +1,36 @@
-import os
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
-from datarobot_client import DATAROBOT_LLM_MODEL
+from config import Config
+from datarobot_asgi_middleware import DataRobotASGIMiddleware
+
+_templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 app = FastAPI()
-
-BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
-APP_TOKEN = os.environ.get("SLACK_APP_TOKEN")
-
-_PAGE = """<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slack Bot Template</title>
-  <style>
-    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f3f4f6;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #111827;
-    }}
-    .card {{
-      background: #fff;
-      border-radius: 16px;
-      padding: 2.5rem;
-      width: 90%;
-      max-width: 460px;
-      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
-    }}
-    .header {{
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }}
-    .emoji {{ font-size: 2.75rem; line-height: 1; }}
-    h1 {{ font-size: 1.4rem; font-weight: 700; }}
-    .subtitle {{ font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem; }}
-    .badge {{
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.35rem 0.85rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 1.75rem;
-    }}
-    .badge.ok  {{ background: #d1fae5; color: #065f46; }}
-    .badge.err {{ background: #fee2e2; color: #991b1b; }}
-    .dot {{ width: 7px; height: 7px; border-radius: 50%; }}
-    .badge.ok  .dot {{ background: #10b981; }}
-    .badge.err .dot {{ background: #ef4444; }}
-    .rows {{ display: flex; flex-direction: column; gap: 0.6rem; }}
-    .row {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.7rem 1rem;
-      background: #f9fafb;
-      border-radius: 10px;
-      font-size: 0.82rem;
-    }}
-    .label {{ color: #6b7280; font-family: monospace; font-size: 0.78rem; }}
-    .value {{ font-weight: 600; }}
-    .value.ok  {{ color: #10b981; }}
-    .value.err {{ color: #ef4444; }}
-    .value.neutral {{ color: #374151; }}
-    .footer {{
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #f3f4f6;
-      text-align: center;
-    }}
-    a {{ color: #6366f1; text-decoration: none; font-size: 0.8rem; }}
-    a:hover {{ text-decoration: underline; }}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <div class="emoji">🤖</div>
-      <div>
-        <h1>Slack Bot Template</h1>
-        <div class="subtitle">DataRobot Custom Application</div>
-      </div>
-    </div>
-
-    <div class="badge {status_badge}">
-      <div class="dot"></div>
-      {status_label}
-    </div>
-
-    <div class="rows">
-      <div class="row">
-        <span class="label">SLACK_BOT_TOKEN</span>
-        <span class="value {bot_cls}">{bot_val}</span>
-      </div>
-      <div class="row">
-        <span class="label">SLACK_APP_TOKEN</span>
-        <span class="value {app_cls}">{app_val}</span>
-      </div>
-      <div class="row">
-        <span class="label">DATAROBOT_LLM_MODEL</span>
-        <span class="value neutral">{llm_model}</span>
-      </div>
-    </div>
-
-    <div class="footer">
-      <a href="https://github.com/datarobot-oss/slack-bot-app" target="_blank">
-        datarobot-oss/slack-bot-app →
-      </a>
-    </div>
-  </div>
-</body>
-</html>"""
+app.add_middleware(DataRobotASGIMiddleware, health_endpoint="/healthz")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root() -> HTMLResponse:
+async def root(request: Request) -> HTMLResponse:
     """Human-readable status page."""
-    healthy = bool(BOT_TOKEN and APP_TOKEN)
-    return HTMLResponse(_PAGE.format(
-        status_badge="ok" if healthy else "err",
-        status_label="Bot is running" if healthy else "Bot is not running",
-        bot_cls="ok" if BOT_TOKEN else "err",
-        bot_val="configured" if BOT_TOKEN else "missing",
-        app_cls="ok" if APP_TOKEN else "err",
-        app_val="configured" if APP_TOKEN else "missing",
-        llm_model=DATAROBOT_LLM_MODEL,
-    ))
+    config = Config()
+    healthy = bool(config.slack_bot_token and config.slack_app_token)
+    return _templates.TemplateResponse(
+        request,
+        "index.html",
+        {
+            "status_badge": "ok" if healthy else "err",
+            "status_label": "Bot is running" if healthy else "Bot is not running",
+            "bot_cls": "ok" if config.slack_bot_token else "err",
+            "bot_val": "configured" if config.slack_bot_token else "missing",
+            "app_cls": "ok" if config.slack_app_token else "err",
+            "app_val": "configured" if config.slack_app_token else "missing",
+            "llm_model": config.datarobot_llm_model,
+        },
+    )
 
 
 @app.get("/healthz")
