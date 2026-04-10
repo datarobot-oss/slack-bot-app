@@ -8,7 +8,7 @@ from config import Config
 from datarobot_client import ask_llm
 
 _MENTION_RE = re.compile(r"<@[A-Z0-9]+>\s*", re.IGNORECASE)
-_SUMMARIZE_RE = re.compile(r"summarize(?:\s+(?:last\s+)?(\d+))?", re.IGNORECASE)
+_SUMMARIZE_RE = re.compile(r"summarize\b(?:\s+(?:last\s+)?(\d+))?", re.IGNORECASE)
 
 _DEFAULT_SUMMARY_MESSAGES = 20
 _MAX_SUMMARY_MESSAGES = 100
@@ -98,7 +98,7 @@ def app_mention_callback(event: dict, client: WebClient, logger: Logger, say: Sa
             return
         _ask_llm(f"Summarize the following Slack conversation:\n\n{transcript}", logger, say)
 
-    elif re.match(r"help", text, re.IGNORECASE):
+    elif re.match(r"help\b", text, re.IGNORECASE):
         say(
             "Here's what I can do (prefix every command with @mention):\n"
             "• *ask <question>* — I'll answer via the DataRobot LLM Gateway\n"

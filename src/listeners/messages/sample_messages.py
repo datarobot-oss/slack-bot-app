@@ -22,13 +22,3 @@ def potato_callback(say: Say) -> None:
     say("Did someone say potato? :potato:")
 
 
-def help_message_callback(say: Say) -> None:
-    """Respond to help requests with a list of available commands."""
-    say(
-        "Here's what I can do:\n"
-        "• *@mention me* — I'll echo your message back\n"
-        "• *hi / hey / hello* — I'll greet you\n"
-        "• *goodbye / bye / farewell* — I'll say farewell\n"
-        "• *ask <question>* — I'll answer via the DataRobot LLM Gateway\n"
-        "• *help* — I'll show this message"
-    )
