@@ -89,13 +89,14 @@ def app_mention_callback(event: dict, client: WebClient, logger: Logger, say: Sa
         logger.info("Summarize request from %s: last %d messages", user_id, limit)
         try:
             transcript = _build_transcript(client, event["channel"], limit)
-            if not transcript:
-                say("There are no messages to summarize yet.")
-                return
-            _ask_llm(f"Summarize the following Slack conversation:\n\n{transcript}", logger, say)
         except Exception:
             logger.exception("Failed to fetch channel history")
             say("Sorry, I couldn't read the channel history. Make sure the `channels:history` scope is granted.")
+            return
+        if not transcript:
+            say("There are no messages to summarize yet.")
+            return
+        _ask_llm(f"Summarize the following Slack conversation:\n\n{transcript}", logger, say)
 
     elif re.match(r"help", text, re.IGNORECASE):
         say(
