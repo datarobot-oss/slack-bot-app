@@ -9,7 +9,7 @@
     ],
     "source": {
       "repositoryUrl": "https://github.com/datarobot-oss/slack-bot-app",
-      "releaseTag": "11.8.1"
+      "releaseTag": "11.8.2"
     },
     "previewImage": null
   },
