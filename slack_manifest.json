@@ -1,12 +1,14 @@
 {
   "display_information": {
-    "name": "Slack Bot Template"
+    "name": "Slack Bot Template",
+    "description": "Seamlessly generate a Slack bot integration for your workspace's chat experience with DataRobot's out of the box template example. In just a few clicks, get your Slackbot up and running with easy testing and simple guidance.",
+    "background_color": "#434a59"
   },
   "features": {
     "app_home": {
-      "home_tab_enabled": false,
-      "messages_tab_enabled": false,
-      "messages_tab_read_only_enabled": true
+      "home_tab_enabled": true,
+      "messages_tab_enabled": true,
+      "messages_tab_read_only_enabled": false
     },
     "bot_user": {
       "display_name": "Slack Bot Template",
@@ -30,7 +32,8 @@
       "bot_events": [
         "app_home_opened",
         "app_mention",
-        "message.channels"
+        "message.channels",
+        "message.im"
       ]
     },
     "interactivity": {
